@@ -3,6 +3,7 @@ package rbac
 import (
 	_ "fmt"
 	"github.com/casbin/casbin/v2"
+	fileadapter "github.com/casbin/casbin/v2/persist/file-adapter"
 	"sync"
 	"time"
 )
@@ -45,29 +46,27 @@ var cachedEnforcers = make(map[string]*EnforceDescriptor)
 
 func Accquire(path string) (*casbin.SyncedEnforcer, error) {
 	fileMutex.Lock()
+	defer fileMutex.Unlock()
 	if e, ok := cachedEnforcers[path]; ok {
 		e.lifetime += 2
 		if e.lifetime > initalLifeTime {
 			e.lifetime = initalLifeTime
 		}
 		e.reference++
-		fileMutex.Unlock()
 		return e.SyncedEnforcer, nil
 	}
 
 	if maxDescriptorCount <= allocDescriptorCount {
-		fileMutex.Unlock()
 		// is it ok ?
-		return casbin.NewSyncedEnforcer(rbacModel, path)
+		return casbin.NewSyncedEnforcer(rbacModel, fileadapter.NewAdapter(path))
 	} else {
 		allocDescriptorCount++
-		enforcer, err := casbin.NewSyncedEnforcer(rbacModel, path)
+		enforcer, err := casbin.NewSyncedEnforcer(rbacModel, fileadapter.NewAdapter(path))
 		if err != nil {
 			return nil, err
 		}
 		e := newDescriptor(enforcer)
 		cachedEnforcers[path] = e
-		fileMutex.Unlock()
 		// fmt.Println("alocation...", e)
 		go func() {
 			ticker := time.NewTicker(tickDuration)
@@ -76,12 +75,12 @@ func Accquire(path string) (*casbin.SyncedEnforcer, error) {
 				fileMutex.Lock()
 				e = cachedEnforcers[path]
 				e.lifetime--
-				// fmt.Println(e)
+				//fmt.Println(e)
 				if e.reference <= 0 && e.lifetime <= 0 {
 					allocDescriptorCount--
 					delete(cachedEnforcers, path)
-					// fmt.Println("released", e)
 					fileMutex.Unlock()
+					//fmt.Println("released", e)
 					ticker.Stop()
 					break
 				}
@@ -95,11 +94,10 @@ func Accquire(path string) (*casbin.SyncedEnforcer, error) {
 
 func Release(path string) {
 	fileMutex.Lock()
+	defer fileMutex.Unlock()
 	if e, ok := cachedEnforcers[path]; ok {
 		e.lifetime--
 		e.reference--
-		fileMutex.Unlock()
-		return
 	}
-	fileMutex.Unlock()
+	return
 }

@@ -19,4 +19,5 @@ require (
 	go.uber.org/zap v1.12.0
 	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf
 	gopkg.in/yaml.v2 v2.2.4
+	xorm.io/xorm v0.8.0
 )

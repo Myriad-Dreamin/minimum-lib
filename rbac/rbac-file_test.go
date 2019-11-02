@@ -9,18 +9,30 @@ import (
 
 func TestAddPolicy(t *testing.T) {
 
-	e := Accquire("./test.csv")
-	e.AddPolicy("data2_admin", "data2", "write")
-	if err := e.SavePolicy(); err != nil {
-		t.Error(err)
+	e, err := Accquire("./test.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	added, err := e.AddPolicy("data2_admin", "data2", "write")
+	if added == false || err != nil {
+		t.Fatal(added, err)
+	}
+	if err = e.SavePolicy(); err != nil {
+		t.Fatal(err)
 	}
 	Release("./test.csv")
 }
 
 func TestDeletePolicy(t *testing.T) {
 
-	e := Accquire("./test.csv")
-	e.RemovePolicy("data2_admin", "data2", "write")
+	e, err := Accquire("./test.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
+	removed, err := e.RemovePolicy("data2_admin", "data2", "write")
+	if removed == false || err != nil {
+		t.Fatal(removed, err)
+	}
 	if err := e.SavePolicy(); err != nil {
 		t.Error(err)
 	}
@@ -28,20 +40,32 @@ func TestDeletePolicy(t *testing.T) {
 }
 
 func TestAccquireRelease(t *testing.T) {
-	e := Accquire("./test.csv")
+	dur := time.Millisecond * 100
+	SetTickDuration(dur)
+	e, err := Accquire("./test.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
 	fmt.Println(e.GetPolicy())
-	time.Sleep(time.Second * 5)
-	e2 := Accquire("./test.csv")
+	time.Sleep(dur * 5)
+	e2, err := Accquire("./test.csv")
+	if err != nil {
+		t.Fatal(err)
+	}
 	fmt.Printf("%p %p\n", e, e2)
 	Release("./test.csv")
-	time.Sleep(time.Second * 8)
+	time.Sleep(dur * 8)
 	Release("./test.csv")
-	time.Sleep(time.Second * 1)
+	time.Sleep(dur * 1)
+	SetTickDuration(time.Second)
 }
 
 func BenchmarkAccquire(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		_ = Accquire("./test.csv")
+		_, err := Accquire("./test.csv")
+		if err != nil {
+			b.Fatal(err)
+		}
 	}
 }
 
@@ -51,13 +75,22 @@ func BenchmarkAccquireReleaseMultiThread(b *testing.B) {
 		for j := 0; j < 1000; j++ {
 			wg.Add(1)
 			go func() {
-				e := Accquire("./test.csv")
+				e, err := Accquire("./test.csv")
+				if err != nil {
+					b.Fatal(err)
+				}
 
-				e.AddPolicy("data2_admin", "data2", "write")
+				added, err := e.AddPolicy("data2_admin", "data2", "write")
+				if added == false || err != nil {
+					b.Fatal(added, err)
+				}
 				if err := e.SavePolicy(); err != nil {
 					b.Error(err)
 				}
-				e.RemovePolicy("data2_admin", "data2", "write")
+				removed, err := e.RemovePolicy("data2_admin", "data2", "write")
+				if removed == false || err != nil {
+					b.Fatal(removed, err)
+				}
 				if err := e.SavePolicy(); err != nil {
 					b.Error(err)
 				}
@@ -71,13 +104,22 @@ func BenchmarkAccquireReleaseMultiThread(b *testing.B) {
 
 func BenchmarkAccquireRelease(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		e := Accquire("./test.csv")
+		e, err := Accquire("./test.csv")
+		if err != nil {
+			b.Fatal(err)
+		}
 
-		e.AddPolicy("data2_admin", "data2", "write")
+		added, err := e.AddPolicy("data2_admin", "data2", "write")
+		if added == false || err != nil {
+			b.Fatal(added, err)
+		}
 		if err := e.SavePolicy(); err != nil {
 			b.Error(err)
 		}
-		e.RemovePolicy("data2_admin", "data2", "write")
+		removed, err := e.RemovePolicy("data2_admin", "data2", "write")
+		if removed == false || err != nil {
+			b.Fatal(removed, err)
+		}
 		if err := e.SavePolicy(); err != nil {
 			b.Error(err)
 		}

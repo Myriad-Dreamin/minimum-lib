@@ -3,7 +3,7 @@ package rbac
 import "github.com/casbin/casbin/v2"
 
 import xormadapter "github.com/casbin/xorm-adapter"
-import "github.com/go-xorm/xorm"
+import "xorm.io/xorm"
 
 func InitXorm(x *xorm.Engine) error {
 
