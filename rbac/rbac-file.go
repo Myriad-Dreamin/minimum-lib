@@ -43,7 +43,7 @@ func newDescriptor(e *casbin.SyncedEnforcer) *EnforceDescriptor {
 
 var cachedEnforcers = make(map[string]*EnforceDescriptor)
 
-func Accquire(path string) *casbin.SyncedEnforcer {
+func Accquire(path string) (*casbin.SyncedEnforcer, error) {
 	fileMutex.Lock()
 	if e, ok := cachedEnforcers[path]; ok {
 		e.lifetime += 2
@@ -52,7 +52,7 @@ func Accquire(path string) *casbin.SyncedEnforcer {
 		}
 		e.reference++
 		fileMutex.Unlock()
-		return e.SyncedEnforcer
+		return e.SyncedEnforcer, nil
 	}
 
 	if maxDescriptorCount <= allocDescriptorCount {
@@ -61,7 +61,11 @@ func Accquire(path string) *casbin.SyncedEnforcer {
 		return casbin.NewSyncedEnforcer(rbacModel, path)
 	} else {
 		allocDescriptorCount++
-		e := newDescriptor(casbin.NewSyncedEnforcer(rbacModel, path))
+		enforcer, err := casbin.NewSyncedEnforcer(rbacModel, path)
+		if err != nil {
+			return nil, err
+		}
+		e := newDescriptor(enforcer)
 		cachedEnforcers[path] = e
 		fileMutex.Unlock()
 		// fmt.Println("alocation...", e)
@@ -85,7 +89,7 @@ func Accquire(path string) *casbin.SyncedEnforcer {
 			}
 		}()
 
-		return e.SyncedEnforcer
+		return e.SyncedEnforcer, nil
 	}
 }
 
