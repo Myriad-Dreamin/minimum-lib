@@ -3,82 +3,12 @@ package logger
 import (
 	"fmt"
 	"github.com/Myriad-Dreamin/minimum-lib/logger/bufferpool"
-	kitlog "github.com/go-kit/kit/log"
-	kitlevel "github.com/go-kit/kit/log/level"
 	kitzaplog "github.com/go-kit/kit/log/zap"
 	colorful "github.com/gookit/color"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"io"
 	"strings"
 )
-
-type splitingIO struct {
-	IO   io.Writer
-	next *splitingIO
-}
-
-func (sio *splitingIO) Write(p []byte) (int, error) {
-	n, err := sio.IO.Write(p)
-	if err != nil {
-		return n, err
-	}
-	if sio.next != nil {
-		nn, err := sio.IO.Write(p)
-		if err != nil {
-			return nn, err
-		}
-		if n < nn {
-			return n, err
-		} else {
-			return nn, err
-		}
-	} else {
-		return n, err
-	}
-}
-
-const (
-	msgKey    = "_msg" // "_" prefixed to avoid collisions
-	moduleKey = "module"
-)
-
-// Info logs a message at level Info.
-func (l *zapLogger) Info(msg string, keyvals ...interface{}) {
-	lWithLevel := kitlevel.Info(l.srcLogger)
-	if err := kitlog.With(lWithLevel, msgKey, msg).Log(keyvals...); err != nil {
-		errLogger := kitlevel.Error(l.srcLogger)
-		kitlog.With(errLogger, msgKey, msg).Log("err", err)
-	}
-}
-
-type zapLogger struct {
-	srcLogger kitlog.Logger
-}
-
-// Debug logs a message at level Debug.
-func (l *zapLogger) Debug(msg string, keyvals ...interface{}) {
-	lWithLevel := kitlevel.Debug(l.srcLogger)
-	if err := kitlog.With(lWithLevel, msgKey, msg).Log(keyvals...); err != nil {
-		errLogger := kitlevel.Error(l.srcLogger)
-		kitlog.With(errLogger, msgKey, msg).Log("err", err)
-	}
-}
-
-// Error logs a message at level Error.
-func (l *zapLogger) Error(msg string, keyvals ...interface{}) {
-	lWithLevel := kitlevel.Error(l.srcLogger)
-	lWithMsg := kitlog.With(lWithLevel, msgKey, msg)
-	if err := lWithMsg.Log(keyvals...); err != nil {
-		lWithMsg.Log("err", err)
-	}
-}
-
-// With returns a new contextual logger with keyvals prepended to those passed
-// to calls to Info, Debug or Error.
-func (l *zapLogger) With(keyvals ...interface{}) Logger {
-	return &zapLogger{kitlog.With(l.srcLogger, keyvals...)}
-}
 
 const (
 	// 	lightSkyBlue      = "87CEFA"
@@ -92,8 +22,10 @@ var (
 	// colorLightSkyBlue      = colorful.HEX(lightSkyBlue)
 	colorLightLightSkyBlue = colorful.HEX(lightlightSkyBlue)
 	colorSkyBlue           = colorful.HEX(skyBlue)
+
 	colorInfo              = colorLightLightSkyBlue.Sprintf("Info")
 	colorDebug             = colorSkyBlue.Sprintf("Debug")
+
 	colorWarn              = colorful.Yellow.Sprintf("Warn")
 	colorPanic             = colorful.Red.Sprintf("Panic")
 	colorError             = colorful.Red.Sprintf("Error")
@@ -195,8 +127,8 @@ func FullColorfulCallerEncoder(caller zapcore.EntryCaller, enc zapcore.Primitive
 	buf.Free()
 }
 
-func NewZapColorfulDevelopmentSugarLogger(options ...zap.Option) (Logger, error) {
-	logger, err := zap.Config{
+func NewZapDevelopmentSugarOption() zap.Config {
+	return zap.Config{
 		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
 		Development: true,
 		Encoding:    "console",
@@ -216,40 +148,18 @@ func NewZapColorfulDevelopmentSugarLogger(options ...zap.Option) (Logger, error)
 		},
 		OutputPaths:      []string{"stdout"},
 		ErrorOutputPaths: []string{"stderr"},
-	}.Build(append(options, zap.AddCallerSkip(1))...)
-
-	// zap.NewDevelopment(options...)
-	if err != nil {
-		return nil, err
 	}
-	return &zapLogger{kitzaplog.NewZapSugarLogger(logger, zapcore.DebugLevel)}, nil
 }
 
-func NewZapOptions(options ...zap.Option) (Logger, error) {
-	logger, err := zap.Config{
-		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
-		Development: true,
-		Encoding:    "console",
-		EncoderConfig: zapcore.EncoderConfig{
-			// Keys can be anything except the empty string.
-			TimeKey:        "T",
-			LevelKey:       "L",
-			NameKey:        "N",
-			CallerKey:      "C",
-			MessageKey:     "M",
-			StacktraceKey:  "S",
-			LineEnding:     zapcore.DefaultLineEnding,
-			EncodeLevel:    zapColorfulLevelEncoder,
-			EncodeTime:     zapcore.ISO8601TimeEncoder,
-			EncodeDuration: zapcore.StringDurationEncoder,
-			EncodeCaller:   ShortColorfulCallerEncoder,
-		},
-		OutputPaths:      []string{"test.log"},
-		ErrorOutputPaths: []string{"stderr"},
-	}.Build(append(options, zap.AddCallerSkip(1))...)
+func NewZapLogger(cfg zap.Config, level zapcore.Level, options ...zap.Option) (Logger, error) {
+	logger, err := cfg.Build(append(options, zap.AddCallerSkip(1))...)
 	// zap.NewDevelopment(options...)
 	if err != nil {
 		return nil, err
 	}
-	return &zapLogger{kitzaplog.NewZapSugarLogger(logger, zapcore.DebugLevel)}, nil
+	return NewKitLogger(kitzaplog.NewZapSugarLogger(logger, level)), nil
+}
+
+func NewZapColorfulDevelopmentSugarLogger(options ...zap.Option) (Logger, error) {
+	return NewZapLogger(NewZapDevelopmentSugarOption(), zapcore.DebugLevel, options...)
 }
