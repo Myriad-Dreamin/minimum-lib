@@ -68,7 +68,7 @@ func toKeyVals(keyvals ...interface{}) (kvs []interface{}) {
 func (s stdLogger) args(msg, level string, keyvals ...interface{}) []interface{} {
 	return append(append(
 	append(append(make([]interface{}, 0, len(s.keyvals) + ((len(keyvals) + 1) >> 1) + 2), msg),
-		s.keyvals...), toKeyVals("level", level)...), toKeyVals(keyvals...)...)
+		toKeyVals("level", level)...), s.keyvals...), toKeyVals(keyvals...)...)
 }
 
 func (s stdLogger) Fatal(msg string, keyvals ...interface{}) {
