@@ -2,7 +2,7 @@ package doc_gen
 
 import (
 	"fmt"
-	"github.com/Myriad-Dreamin/market/lib/mock"
+	"github.com/Myriad-Dreamin/minimum-lib/mock"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"testing"
