@@ -1,13 +1,12 @@
 package sugar
 
 import (
-	"github.com/Myriad-Dreamin/market/lib/sugar"
 	std_logger_interface "github.com/Myriad-Dreamin/minimum-lib/logger/std-logger-interface"
 )
 
 func HandlerError0(err error) {
 	if err != nil {
-		sugar.PrintStack()
+		PrintStack()
 		panic(err)
 	}
 }
@@ -37,7 +36,7 @@ func NewHandlerErrorLogger(logger std_logger_interface.StdLoggerFatalInterface) 
 
 func (h HandlerErrorLogger) HandlerError0(err error) {
 	if err != nil {
-		sugar.PrintStack()
+		PrintStack()
 		h.logger.Fatal(err)
 	}
 }
