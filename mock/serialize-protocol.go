@@ -7,6 +7,8 @@ import (
 )
 
 type Comment string
+type AbortRecord bool
+
 
 type Serializable interface {
 	Serialize() (io.Reader, error)
