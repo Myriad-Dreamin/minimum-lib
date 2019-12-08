@@ -7,6 +7,7 @@ import (
 )
 
 type Comment string
+type ContentType string
 type AbortRecord bool
 
 
@@ -14,6 +15,7 @@ type Serializable interface {
 	Serialize() (io.Reader, error)
 	ContentType() string
 }
+
 
 func NotStruct(content interface{}) io.Reader {
 	var buf = new(bytes.Buffer)
