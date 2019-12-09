@@ -22,6 +22,7 @@ require (
 	github.com/mattn/go-sqlite3 v1.11.1-0.20191008083825-3f45aefa8dc8 // indirect
 	github.com/tecbot/gorocksdb v0.0.0-20191019123150-400c56251341
 	github.com/ugorji/go v1.1.7 // indirect
+	github.com/vburenin/ifacemaker v1.1.0 // indirect
 	go.uber.org/zap v1.12.0
 	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf
 	golang.org/x/sys v0.0.0-20191029155521-f43be2a4598c // indirect

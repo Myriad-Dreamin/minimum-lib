@@ -66,6 +66,12 @@ func (m Module) Require(req string) interface{} {
 	return m[req]
 }
 
+func (m Module) Provide(k string ,v interface{}) (ov interface{}) {
+	ov, _ = m[k]
+	m[k] = v
+	return ov
+}
+
 func (m Module) Install(moduler Moduler) (err error) {
 	for _, res := range moduler.Provides() {
 		if _, ok := m[res.Name]; ok {
