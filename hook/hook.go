@@ -1,20 +1,20 @@
 package hook
 
 import (
-	"github.com/gin-gonic/gin"
+	"github.com/Myriad-Dreamin/minimum-lib/controller"
 )
 
 type Hook struct {
-	funcs []GinHookFunc
+	funcs []HookFunc
 }
 
-type GinHookFunc func(c *gin.Context) bool
+type HookFunc func(c controller.MContext) bool
 
-func (hook *Hook) Use(hookFunc GinHookFunc) {
+func (hook *Hook) Use(hookFunc HookFunc) {
 	hook.funcs = append(hook.funcs, hookFunc)
 }
 
-func (hook *Hook) Consume(c *gin.Context) bool {
+func (hook *Hook) Consume(c controller.MContext) bool {
 	for _, f := range hook.funcs {
 		if !f(c) {
 			return false

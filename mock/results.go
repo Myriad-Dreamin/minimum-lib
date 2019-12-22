@@ -1,7 +1,6 @@
 package mock
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -60,8 +59,11 @@ func (r Records) GetResponseBody() []byte {
 }
 
 type Results struct {
-	gin.RouteInfo
-	Recs []RecordsI
+	Method      string
+	Path        string
+	HandlerFunc interface{}
+	Handler     string
+	Recs        []RecordsI
 }
 
 func (r Results) GetMethod() string {
