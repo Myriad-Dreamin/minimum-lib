@@ -5,9 +5,6 @@ import (
 	"mime/multipart"
 	"time"
 
-	"github.com/gin-gonic/gin/binding"
-	"github.com/gin-gonic/gin/render"
-
 	"context"
 )
 
@@ -211,10 +208,6 @@ type MContext interface {
 	// BindUri binds the passed struct pointer using binding.Uri.
 	// It will abort the request with HTTP 400 if any error occurs.
 	BindUri(obj interface{}) error
-	// MustBindWith binds the passed struct pointer using the specified binding engine.
-	// It will abort the request with HTTP 400 if any error occurs.
-	// See the binding package.
-	MustBindWith(obj interface{}, b binding.Binding) error
 	// ShouldBind checks the Content-Type to select a binding engine automatically,
 	// Depending the "Content-Type" header different bindings are used:
 	//     "application/json" --> JSON binding
@@ -236,15 +229,6 @@ type MContext interface {
 	ShouldBindHeader(obj interface{}) error
 	// ShouldBindUri binds the passed struct pointer using the specified binding engine.
 	ShouldBindUri(obj interface{}) error
-	// ShouldBindWith binds the passed struct pointer using the specified binding engine.
-	// See the binding package.
-	ShouldBindWith(obj interface{}, b binding.Binding) error
-	// ShouldBindBodyWith is similar with ShouldBindWith, but it stores the request
-	// body into the context, and reuse when it is called again.
-	//
-	// NOTE: This method reads the body before binding. So you should use
-	// ShouldBindWith for better performance if you need to call only once.
-	ShouldBindBodyWith(obj interface{}, bb binding.BindingBody) (err error)
 	// ClientIP implements a best effort algorithm to return the real client IP, it parses
 	// X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
 	// Use X-Forwarded-For before X-Real-Ip as nginx uses X-Real-Ip with the proxy's IP.
@@ -273,8 +257,6 @@ type MContext interface {
 	// If multiple cookies match the given name, only one cookie will
 	// be returned.
 	Cookie(name string) (string, error)
-	// Render writes the response headers and calls render.Render to render data.
-	Render(code int, r render.Render)
 	// HTML renders the HTTP template specified by its file name.
 	// It also updates the HTTP code and sets the Content-Type as "text/html".
 	// See http://golang.org/doc/articles/wiki/

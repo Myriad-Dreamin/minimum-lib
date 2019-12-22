@@ -3,9 +3,10 @@ package doc_gen
 import (
 	"fmt"
 	"github.com/Myriad-Dreamin/minimum-lib/mock"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"testing"
+
+	mcontroller "github.com/Myriad-Dreamin/minimum-lib/controller"
 )
 
 func Test_prettifyHeader(t *testing.T) {
@@ -73,7 +74,7 @@ func Test_prettifyBody(t *testing.T) {
 // @titLE Get Accounts
 //          @Description get accounts
 //   @Success 200 {array} model.Account
-func testHandler(ctx *gin.Context) {
+func testHandler(ctx mcontroller.MContext) {
 
 }
 
@@ -81,7 +82,7 @@ func testHandler(ctx *gin.Context) {
 // @titLE Put Accounts
 //          @Description put accounts
 //   @Success 200 {array} model.Account
-func testHandler2(ctx *gin.Context) {
+func testHandler2(ctx mcontroller.MContext) {
 
 }
 
@@ -99,14 +100,14 @@ func (c controllerS) GetProvider() interface{} {
 // @titLE Get AccountsA
 //          @Description get accounts
 //   @Success 200 {array} model.Account
-func (controllerS) TestHandler(ctx *gin.Context) {
+func (controllerS) TestHandler(ctx mcontroller.MContext) {
 
 }
 
 // @titLE Get AccountsA
 //          @Description get accounts
 //   @Success 200 {array} model.Account
-func (controllerS) testHandler2(ctx *gin.Context) {
+func (controllerS) testHandler2(ctx mcontroller.MContext) {
 
 }
 
@@ -120,13 +121,13 @@ type controller interface {
 	// @titLE Get Accounts
 	//          @Description get accounts
 	//   @Success 200 {array} model.Account
-	TestHandler(ctx *gin.Context)
+	TestHandler(ctx mcontroller.MContext)
 
 	// @category Accounts
 	// @titLE Put Accounts
 	//          @Description put accounts
 	//   @Success 200 {array} model.Account
-	testHandler2(ctx *gin.Context)
+	testHandler2(ctx mcontroller.MContext)
 }
 
 func TestFromGinResults(t *testing.T) {
@@ -142,12 +143,10 @@ func TestFromGinResults(t *testing.T) {
 		{"test_base01", args{
 			res: &GinInfo{
 				Result: []GinResult{mock.Results{
-					RouteInfo: gin.RouteInfo{
-						Method:      "PUT",
-						Path:        "/v1/user",
-						Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-						HandlerFunc: testHandler,
-					},
+					Method:      "PUT",
+					Path:        "/v1/user",
+					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+					HandlerFunc: testHandler,
 					Recs: []Records{mock.Records{
 						RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 						RequestBody:    []byte(`{"1":1}`),
@@ -162,12 +161,10 @@ func TestFromGinResults(t *testing.T) {
 		{"test_base02", args{
 			res: &GinInfo{
 				Result: []GinResult{mock.Results{
-					RouteInfo: gin.RouteInfo{
-						Method:      "PUT",
-						Path:        "/v1/user",
-						Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-						HandlerFunc: testHandler2,
-					},
+					Method:      "PUT",
+					Path:        "/v1/user",
+					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+					HandlerFunc: testHandler2,
 					Recs: []Records{mock.Records{
 						RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 						RequestBody:    []byte(`{"1":1}`),
@@ -177,12 +174,10 @@ func TestFromGinResults(t *testing.T) {
 					}},
 				},
 					mock.Results{
-						RouteInfo: gin.RouteInfo{
-							Method:      "GET",
-							Path:        "/v1/user",
-							Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-							HandlerFunc: testHandler,
-						},
+						Method:      "GET",
+						Path:        "/v1/user",
+						Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+						HandlerFunc: testHandler,
 						Recs: []Records{mock.Records{
 							RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 							RequestBody:    []byte(`{"1":1}`),
@@ -199,12 +194,10 @@ func TestFromGinResults(t *testing.T) {
 			res: &GinInfo{
 				ControllerProvider: controllerS{},
 				Result: []GinResult{mock.Results{
-					RouteInfo: gin.RouteInfo{
-						Method:      "PUT",
-						Path:        "/v1/user",
-						Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-						HandlerFunc: controllerS{}.testHandler2,
-					},
+					Method:      "PUT",
+					Path:        "/v1/user",
+					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+					HandlerFunc: controllerS{}.testHandler2,
 					Recs: []Records{mock.Records{
 						RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 						RequestBody:    []byte(`{"1":1}`),
@@ -214,12 +207,10 @@ func TestFromGinResults(t *testing.T) {
 					}},
 				},
 					mock.Results{
-						RouteInfo: gin.RouteInfo{
-							Method:      "GET",
-							Path:        "/v1/user",
-							Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-							HandlerFunc: controllerS{}.TestHandler,
-						},
+						Method:      "GET",
+						Path:        "/v1/user",
+						Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+						HandlerFunc: controllerS{}.TestHandler,
 						Recs: []Records{mock.Records{
 							RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 							RequestBody:    []byte(`{"1":1}`),
@@ -251,7 +242,7 @@ type RawService struct {
 // @titLE Get AccountsA
 //          @Description get accounts
 //   @Success 200 {array} model.Account
-func (RawService) TestHandler(ctx *gin.Context) {
+func (RawService) TestHandler(ctx mcontroller.MContext) {
 
 }
 
@@ -269,7 +260,7 @@ type RawServiceI interface {
 	/* @b
 	 * @a
 	 */
-	TestHandler(ctx *gin.Context)
+	TestHandler(ctx mcontroller.MContext)
 }
 
 func Test_processResultResult(t *testing.T) {
@@ -284,12 +275,10 @@ func Test_processResultResult(t *testing.T) {
 	}{
 		{"test_base_just_func", args{
 			resI: mock.Results{
-				RouteInfo: gin.RouteInfo{
-					Method:      "PUT",
-					Path:        "/v1/user",
-					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-					HandlerFunc: testHandler,
-				},
+				Method:      "PUT",
+				Path:        "/v1/user",
+				Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+				HandlerFunc: testHandler,
 				Recs: []Records{mock.Records{
 					RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 					RequestBody:    []byte(`{"1":1}`),
@@ -301,12 +290,10 @@ func Test_processResultResult(t *testing.T) {
 		}, nil},
 		{"test_base_func_with_receiver", args{
 			resI: mock.Results{
-				RouteInfo: gin.RouteInfo{
-					Method:      "PUT",
-					Path:        "/v1/user",
-					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-					HandlerFunc: RawService{}.TestHandler,
-				},
+				Method:      "PUT",
+				Path:        "/v1/user",
+				Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+				HandlerFunc: RawService{}.TestHandler,
 				Recs: []Records{mock.Records{
 					RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 					RequestBody:    []byte(`{"1":1}`),
@@ -318,12 +305,10 @@ func Test_processResultResult(t *testing.T) {
 		}, nil},
 		{"test_base_interface_func_with_receiver", args{
 			resI: mock.Results{
-				RouteInfo: gin.RouteInfo{
-					Method:      "PUT",
-					Path:        "/v1/user",
-					Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
-					HandlerFunc: ri.TestHandler,
-				},
+				Method:      "PUT",
+				Path:        "/v1/user",
+				Handler:     "ginhub.com/Myriad-Dreamin/x.y.z",
+				HandlerFunc: ri.TestHandler,
 				Recs: []Records{mock.Records{
 					RequestHeader:  http.Header{"Content-Type": []string{mock.ContentTypeJSON}},
 					RequestBody:    []byte(`{"1":1}`),
