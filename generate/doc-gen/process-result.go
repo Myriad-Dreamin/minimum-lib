@@ -157,14 +157,14 @@ func processResultResult(resI interface{}) (processedResultInterface, error) {
 func processResultResults(controllerInfo map[string]ControllerInfoInterface, resI interface{}) ([]mergedResultInterface, error) {
 	switch res := resI.(type) {
 	case []GinResult:
-		var x = make(map[string]*mergedResult)
+		var x, xx = make(map[string]*mergedResult), make(map[string]*mergedResult)
 		for r := range res {
 			rr := res[r]
 			pc, err := processResultResult(rr)
 			if err != nil {
 				return nil, err
 			}
-			var mr = x[rr.GetPath()]
+			var mr = xx[rr.GetPath()]
 			if mr == nil {
 				mr = new(mergedResult)
 				mr.Path = pc.GetPath()
@@ -183,8 +183,14 @@ func processResultResults(controllerInfo map[string]ControllerInfoInterface, res
 				mr.Cate = ct
 			}
 
-			x[rr.GetPath()] = mr
+			xx[rr.GetPath()] = mr
 		}
+
+		for k := range xx {
+			x[xx[k].GetCategoryName()] = xx[k]
+		}
+		xx = nil
+
 		var keys []string
 		var y = make([]mergedResultInterface, 0, len(x))
 		for k := range x {
