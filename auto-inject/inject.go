@@ -12,34 +12,39 @@ var (
 	ErrNotStruct = errors.New("not struct")
 )
 
-type ErrConfict struct {
+type ErrConflict struct {
 	A, B       string
 	DomainName string
 	T          reflect.Type
 }
 
-func (e ErrConfict) Error() string {
+func (e ErrConflict) Error() string {
 	return fmt.Sprintf(`<Field <%s,%s>,Conflict <"%s",%v>>`, e.A, e.B, e.DomainName, e.T)
 }
 
+// Injector can bind dependencies to target injectTarget
 type Injector interface {
+	// Bind to target
 	Bind(injectTarget interface{}) (notFoundList []string, err error)
 }
 
+// Source struct describes a dependency of targets collected from injector
 type Source struct {
 	S reflect.StructField
 	V reflect.Value
 }
 
+// FlatSource records the result of parsed data, and implements Injector
 type FlatSource map[reflect.Type]map[string]Source
 
+// Bind to target
 func (f FlatSource) Bind(i interface{}) ([]string, error) {
 	v, err := getElement(i)
 	if err != nil {
 		return nil, err
 	}
 	t := v.Type()
-	var notFouldList []string
+	var notFoundList []string
 	for i := 0; i < v.NumField(); i++ {
 		field, fieldType := v.Field(i), t.Field(i)
 		if !unicode.IsUpper(rune(fieldType.Name[0])) {
@@ -57,21 +62,21 @@ func (f FlatSource) Bind(i interface{}) ([]string, error) {
 			} else if s, ok := tSet[""]; ok {
 				field.Set(s.V)
 			} else {
-				notFouldList = append(notFouldList, fieldType.Name)
+				notFoundList = append(notFoundList, fieldType.Name)
 			}
 		} else {
 			if s, ok := tSet[name]; ok {
 				field.Set(s.V)
 			} else {
-				notFouldList = append(notFouldList, fieldType.Name)
+				notFoundList = append(notFoundList, fieldType.Name)
 			}
 		}
 	}
-	return notFouldList, nil
+	return notFoundList, nil
 }
 
 type AnyStruct interface{}
-
+// ParseFlatSource can parse any struct and return a dependency-injector
 func ParseFlatSource(source AnyStruct) (FlatSource, error) {
 	v, err := getElement(source)
 	if err != nil {
@@ -92,17 +97,16 @@ func ParseFlatSource(source AnyStruct) (FlatSource, error) {
 		}
 
 		if oldField, ok := s[fieldType.Type][name]; ok {
-			return nil, ErrConfict{oldField.S.Name, fieldType.Name, name, fieldType.Type}
+			return nil, ErrConflict{oldField.S.Name, fieldType.Name, name, fieldType.Type}
 		}
 		s[fieldType.Type][name] = x
 
 		if oldField, ok := s[fieldType.Type][fieldType.Name]; ok {
-			return nil, ErrConfict{oldField.S.Name, fieldType.Name, fieldType.Name, fieldType.Type}
+			return nil, ErrConflict{oldField.S.Name, fieldType.Name, fieldType.Name, fieldType.Type}
 		}
 		s[fieldType.Type][fieldType.Name] = x
 
 		if len(name) != 0 {
-			fmt.Println("?", fieldType)
 			if _, ok := s[fieldType.Type][""]; !ok {
 				s[fieldType.Type][""] = x
 			}
