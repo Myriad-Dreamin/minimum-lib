@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-type A int
+type A interface {}
 type B int
 type C int
 

@@ -3,7 +3,7 @@ module github.com/Myriad-Dreamin/minimum-lib
 go 1.12
 
 require (
-	github.com/Myriad-Dreamin/go-parse-package v1.0.0
+	github.com/Myriad-Dreamin/go-parse-package v1.0.1
 	github.com/casbin/casbin/v2 v2.1.0
 	github.com/casbin/gorm-adapter/v2 v2.0.3
 	github.com/casbin/xorm-adapter v0.0.0-20191026011336-f11f9b23cc3d
