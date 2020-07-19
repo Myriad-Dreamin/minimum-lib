@@ -4,7 +4,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
-	"path/filepath"
+	"path"
 	"reflect"
 	"runtime"
 	"strings"
@@ -71,8 +71,6 @@ func nameOfFunction(f interface{}) string {
 	return runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()
 }
 
-
-
 // @Title StaticFS
 // @Description StaticFS Hook
 func StaticFSDesc(c MContext) {
@@ -80,6 +78,7 @@ func StaticFSDesc(c MContext) {
 }
 
 var staticFSDesc = StaticFSDesc
+
 func SetStaticFSDesc(x HandlerFunc) {
 	staticFSDesc = x
 }
@@ -267,15 +266,15 @@ type RoutesInfo []RouteInfo
 
 // Routes returns a slice of registered routes, including some useful information, such as:
 // the http method, path and the handler name.
-func (engine *Router) routes(path string, routes RoutesInfo) RoutesInfo {
+func (engine *Router) routes(routePath string, routes RoutesInfo) RoutesInfo {
 	for spath, router := range engine.SubRouter {
-		routes = router.routes(filepath.Join(path, spath), routes)
+		routes = router.routes(path.Join(routePath, spath), routes)
 	}
 	for _, router := range engine.SameLevelSubRouter {
-		routes = router.routes(path, routes)
+		routes = router.routes(routePath, routes)
 	}
 	for spath, leaf := range engine.Leafs {
-		routes = append(routes, leaf.RouteInfo(filepath.Join(path, spath[:len(spath)-1])))
+		routes = append(routes, leaf.RouteInfo(path.Join(routePath, spath[:len(spath)-1])))
 	}
 	return routes
 }

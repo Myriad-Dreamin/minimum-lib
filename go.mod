@@ -16,6 +16,7 @@ require (
 	github.com/gookit/color v1.2.0
 	github.com/jinzhu/gorm v1.9.11
 	github.com/mattn/go-sqlite3 v1.11.1-0.20191008083825-3f45aefa8dc8 // indirect
+	github.com/stretchr/testify v1.4.0
 	github.com/tecbot/gorocksdb v0.0.0-20191019123150-400c56251341
 	go.uber.org/zap v1.12.0
 	golang.org/x/crypto v0.0.0-20191029031824-8986dd9e96cf
